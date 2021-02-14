@@ -1,4 +1,4 @@
-import skimage
+import skimage#数字图片处理包
 import skimage.io
 import skimage.transform
 import numpy as np
