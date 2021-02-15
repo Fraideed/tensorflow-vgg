@@ -11,13 +11,13 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 class Vgg16:
     def __init__(self, vgg16_npy_path=None):
         if vgg16_npy_path is None:
-            path = inspect.getfile(Vgg16)
-            path = os.path.abspath(os.path.join(path, os.pardir))
-            path = os.path.join(path, "vgg16.npy")
+            path = inspect.getfile(Vgg16)#返回类Vgg16所在文件的路径
+            path = os.path.abspath(os.path.join(path, os.pardir))#上一行的目录截取到倒数第二级，也就是当前文件的父目录
+            path = os.path.join(path, "vgg16.npy")#拼接好模型文件目录
             vgg16_npy_path = path
             print(path)
 
-        self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item()
+        self.data_dict = np.load(vgg16_npy_path, encoding='latin1', allow_pickle=True).item()
         print("npy file loaded")
 
     def build(self, rgb):
@@ -82,12 +82,12 @@ class Vgg16:
 
     def avg_pool(self, bottom, name):
         return tf.nn.avg_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
-
+#bottom是一个四维张量（batch,height,width,channels）
     def max_pool(self, bottom, name):
         return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
 
     def conv_layer(self, bottom, name):
-        with tf.variable_scope(name):
+        with tf.compat.v1.variable_scope(name):
             filt = self.get_conv_filter(name)
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
@@ -99,7 +99,7 @@ class Vgg16:
             return relu
 
     def fc_layer(self, bottom, name):
-        with tf.variable_scope(name):
+        with tf.compat.v1.variable_scope(name):
             shape = bottom.get_shape().as_list()
             dim = 1
             for d in shape[1:]:
